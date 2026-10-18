@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Climate Trend Analyzer</title><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0b1d2a;--panel:#12293b;--grid:#27465c;--text:#e6f1f7;--muted:#9fb8c8;--ocean:#1e88e5;--teal:#19c3b1;--heat:#ff7043;--sand:#f4e3b1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:28px 24px;background:linear-gradient(120deg,#0d3b66 0%,#0f8b8d 55%,#ff7043 120%)}
+header h1{margin:0;font-size:1.7rem}header p{margin:6px 0 0;opacity:.85}
+main{max-width:1150px;margin:0 auto;padding:20px}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+select{background:var(--panel);color:var(--text);border:1px solid var(--grid);padding:9px 14px;border-radius:10px;font-size:1rem}
+a.btn{color:var(--sand);text-decoration:none;border:1px solid var(--grid);padding:9px 14px;border-radius:10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--grid);border-radius:14px;padding:16px}
+.kpi small{color:var(--muted);display:block}.kpi b{font-size:1.6rem}
+.k1 b{color:var(--heat)}.k2 b{color:var(--ocean)}.k3 b{color:var(--sand)}.k4 b{color:var(--teal)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+h2{font-size:1rem;margin:0 0 10px;color:var(--sand)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{padding:8px;text-align:left;border-bottom:1px solid var(--grid)}th{color:var(--muted)}
+.tag{padding:2px 8px;border-radius:99px;font-size:.78rem;background:#ff704333;color:var(--heat)}.tag.rain{background:#1e88e533;color:var(--ocean)}
+.gallery img{width:100%;border-radius:10px;border:1px solid var(--grid)}
+footer{text-align:center;color:var(--muted);padding:24px}
+</style></head><body>
+<header><h1>🌍 Climate Trend Analyzer</h1><p>30 years of simulated climate data · trends · anomalies · 5-year forecast</p></header>
+<main>
+<div class="bar"><select id="city"></select><a class="btn" href="/docs">API Docs</a><a class="btn" href="/api/summary">Summary JSON</a></div>
+<div class="kpis">
+<div class="card kpi k1"><small>Warming rate</small><b id="k1">–</b></div>
+<div class="card kpi k2"><small>Rainfall trend</small><b id="k2">–</b></div>
+<div class="card kpi k3"><small>Anomaly days flagged</small><b id="k3">–</b></div>
+<div class="card kpi k4"><small>Forecast avg temp (final year)</small><b id="k4">–</b></div>
+</div>
+<div class="grid">
+<div class="card"><h2>Annual mean temperature</h2><canvas id="tempChart"></canvas></div>
+<div class="card"><h2>Annual rainfall</h2><canvas id="rainChart"></canvas></div>
+<div class="card"><h2>5-year forecast (95% interval)</h2><canvas id="fcChart"></canvas></div>
+<div class="card"><h2>Latest anomalies</h2><table><thead><tr><th>Date</th><th>Type</th><th>°C</th><th>mm</th></tr></thead><tbody id="anoms"></tbody></table></div>
+</div>
+<h2 style="margin-top:22px">Saved analysis charts</h2>
+<div class="grid gallery">
+<img src="/images/01_temperature_trend.png"><img src="/images/02_rainfall_trend.png"><img src="/images/03_seasonal_pattern.png">
+<img src="/images/04_anomaly_detection.png"><img src="/images/05_temp_anomaly_heatmap.png"><img src="/images/06_forecast.png">
+</div></main>
+<footer>Climate Trend Analyzer · synthetic data for portfolio use</footer>
+<script>
+const T={heat:'#ff7043',ocean:'#1e88e5',teal:'#19c3b1',sand:'#f4e3b1'};
+Chart.defaults.color='#9fb8c8';Chart.defaults.borderColor='#27465c';
+const sel=document.getElementById('city'),charts={},j=u=>fetch(u).then(r=>r.json()),$=id=>document.getElementById(id);
+const draw=(id,cfg)=>{charts[id]&&charts[id].destroy();charts[id]=new Chart($(id),cfg)};
+function fit(x,y){const n=x.length,mx=x.reduce((a,b)=>a+b)/n,my=y.reduce((a,b)=>a+b)/n;let a=0,b=0;x.forEach((v,i)=>{a+=(v-mx)*(y[i]-my);b+=(v-mx)**2});return x.map(v=>my+a/b*(v-mx))}
+async function load(){
+ const c=encodeURIComponent(sel.value);
+ const [an,tr,ao,fc]=await Promise.all([j('/api/annual?city='+c),j('/api/trends?city='+c),j('/api/anomalies?city='+c+'&limit=8'),j('/api/forecast?city='+c)]);
+ const yrs=an.map(r=>r.year),t=tr.find(x=>x.variable=='temperature_c'),r=tr.find(x=>x.variable=='rainfall_mm');
+ $('k1').textContent=(t.slope_per_decade>=0?'+':'')+t.slope_per_decade.toFixed(2)+' °C/decade';
+ $('k2').textContent=(r.slope_per_decade>=0?'+':'')+Math.round(r.slope_per_decade)+' mm/decade'+(r.significant?'':' (n.s.)');
+ $('k3').textContent=ao.count;
+ const last=fc.slice(-12);$('k4').textContent=(last.reduce((a,b)=>a+b.forecast_c,0)/last.length).toFixed(1)+' °C';
+ const y=an.map(v=>v.temp_mean);
+ draw('tempChart',{type:'line',data:{labels:yrs,datasets:[{label:'Annual mean °C',data:y,borderColor:T.heat,backgroundColor:T.heat,tension:.3,pointRadius:3},{label:'Linear trend',data:fit(yrs,y),borderColor:T.sand,borderDash:[6,4],pointRadius:0}]}});
+ draw('rainChart',{type:'bar',data:{labels:yrs,datasets:[{label:'Total rainfall (mm)',data:an.map(v=>v.rain_total),backgroundColor:T.ocean}]}});
+ draw('fcChart',{type:'line',data:{labels:fc.map(v=>v.date.slice(0,7)),datasets:[{label:'Forecast °C',data:fc.map(v=>v.forecast_c),borderColor:T.teal,pointRadius:0,tension:.3},{label:'Upper',data:fc.map(v=>v.upper_c),borderColor:'transparent',pointRadius:0},{label:'Lower',data:fc.map(v=>v.lower_c),borderColor:'transparent',backgroundColor:'rgba(25,195,177,.2)',fill:'-1',pointRadius:0}]},options:{plugins:{legend:{labels:{filter:i=>i.text=='Forecast °C'}}}}});
+ $('anoms').innerHTML=ao.items.map(a=>`<tr><td>${a.date}</td><td><span class="tag ${a.type.includes('rain')?'rain':''}">${a.type}</span></td><td>${a.temperature_c}</td><td>${a.rainfall_mm}</td></tr>`).join('');
+}
+(async()=>{const cs=await j('/api/cities');sel.innerHTML=cs.map(c=>`<option>${c}</option>`).join('');sel.onchange=load;load()})();
+</script></body></html>
