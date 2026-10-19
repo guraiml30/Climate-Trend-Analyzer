@@ -76,13 +76,10 @@ Daily temperature, rainfall and humidity for Delhi, Mumbai and Bengaluru (1995鈥
 | Forecast MAE (24-month holdout) | see `outputs/forecast_metrics.csv` |
 
 ## Screenshots
-![Temperature trend](images/01_temperature_trend.png)
-![Rainfall trend](images/02_rainfall_trend.png)
-![Seasonal pattern](images/03_seasonal_pattern.png)
-![Anomalies](images/04_anomaly_detection.png)
-![Heatmap](images/05_temp_anomaly_heatmap.png)
-![Forecast](images/06_forecast.png)
-![Dashboard](images/07_dashboard.png)
+![image alt]()
+![image alt]()
+![image alt]()
+
 
 ## Future improvements
 Real NASA/NOAA data 路 more cities & geospatial map 路 Prophet/SARIMA 路 pollution-climate correlation 路 live weather API 路 climate risk score 路 automated PDF reports.
