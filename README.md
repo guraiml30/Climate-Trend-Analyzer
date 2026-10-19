@@ -87,5 +87,4 @@ Real NASA/NOAA data · more cities & geospatial map · Prophet/SARIMA · polluti
 ## Learning outcomes
 Time-series analysis, regression with significance testing, anomaly detection (statistical + ML), forecasting validation, REST API design, reproducible pipelines.
 
-## Author
-Your Name · [LinkedIn](https://linkedin.com/in/your-profile) · [GitHub](https://github.com/your-username)
+
