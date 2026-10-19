@@ -76,9 +76,9 @@ Daily temperature, rainfall and humidity for Delhi, Mumbai and Bengaluru (1995â€
 | Forecast MAE (24-month holdout) | see `outputs/forecast_metrics.csv` |
 
 ## Screenshots
-![image alt]()
-![image alt]()
-![image alt]()
+![image alt](https://github.com/guraiml30/Climate-Trend-Analyzer/blob/9f2ef192c1339fa0bd83490d212e8b9e82ed6b5d/Output1.png)
+![image alt](https://github.com/guraiml30/Climate-Trend-Analyzer/blob/9f2ef192c1339fa0bd83490d212e8b9e82ed6b5d/Output2.png)
+![image alt](https://github.com/guraiml30/Climate-Trend-Analyzer/blob/9f2ef192c1339fa0bd83490d212e8b9e82ed6b5d/Output3.png)
 
 
 ## Future improvements
